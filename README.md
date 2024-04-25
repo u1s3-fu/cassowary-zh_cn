@@ -12,7 +12,7 @@
 
 **如果您喜欢视频而不是文档可以参考连接  [点击跳转 YouTube](https://www.youtube.com/watch?v=ftq-c_VgmK0)**
 
-如果项目有对您提供的了帮助可以点击 ⭐ 
+**如果项目有对您提供的了帮助可以点击 ⭐**
 
 **加入Discord的讨论: [点击连接加入 Discord](https://discord.gg/hz4mAwSujH)**
 

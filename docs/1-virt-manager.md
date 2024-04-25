@@ -1,16 +1,16 @@
-# 1. Setting up Windows vm with virt-manager and KVM
+# 1. 使用 virt-manager and KVM来设置Windows虚拟机
 
-This will help you set up an efficient virtual machine for use with cassowary.
+帮助您设置一个高效虚拟机以便于和 cassowary 一起使用。
 
-The instructions are written mainly for Arch Linux, so be sure to adapt them to the distro you are using!
+这个文档是根据 `Arch Linux` 编写，所以需要根据发行版版来进行调整
 
-### We start by installing virt-manager and KVM
+### 我们首先安装 virt-manager 和 KVM
 
 ```bash
 $ sudo pacman -S virt-manager
 ```
 
-### Making KVM run without root access
+### 使KVM在没有root权限的情况下访问
 
 ```bash
 $ sudo sed -i "s/#user = \"root\"/user = \"$(id -un)\"/g" /etc/libvirt/qemu.conf
@@ -21,87 +21,94 @@ $ sudo systemctl restart libvirtd
 $ sudo ln -s /etc/apparmor.d/usr.sbin.libvirtd /etc/apparmor.d/disable/
 ```
 
-### Making network available with AppArmor enabled
+### 启用 AppArmor 以便于网络可以访问
 
-On some Linux distribution if AppArmor is enabled it is necessary to modify the file `/etc/apparmor.d/usr.sbin.dnsmasq` to be able to connect to the network or virt-manager will throw a segmentation fault.
+在某些 Linux发行版本中，如果启用了 AppArmor 则需要修改 `/etc/apparmor.d/usr.sbin.dnsmasq` 才能连接到网络，否则 virt-manager 将发生错误。
 
-If you can't find the `dnsmasq` profile, be sure to install every additional packages regarding AppArmor profiles.  
-If you can't still find the `dnsmasq` profile, you can always download it from [AppArmor gitlab](https://gitlab.com/apparmor/apparmor/-/raw/master/profiles/apparmor.d/usr.sbin.dnsmasq) and copy it to the right location:
+如果你找不到 `dnsmasq` 配置文件，请确保安装  AppArmor 时配置的扩展
+如果你仍然找不到 `dnsmasq` 配置文件, 你需要下载 [AppArmor gitlab](https://gitlab.com/apparmor/apparmor/-/raw/master/profiles/apparmor.d/usr.sbin.dnsmasq) 并且拷贝到正确路径
 
 ```bash
 $ wget https://gitlab.com/apparmor/apparmor/-/raw/master/profiles/apparmor.d/usr.sbin.dnsmasq -O ~/usr.sbin.dnsmasq
 $ sudo mv ~/usr.sbin.dnsmasq /etc/apparmor.d/
 ```
 
-Now, to modify the main profile, you will have to add a `r` at the end of the line about `libvirt_leaseshelper` , so it will be like: `/usr/libexec/libvirt_leaseshelper mr,`.
+现在，需要修改主配置文件并且在关于的末尾添加一个 `r` 
 
-This can also be done via terminal:
+`libvirt_leaseshelper` ， 所以他会像: `/usr/libexec/libvirt_leaseshelper mr,`.
+
+也可以通过终端命令行完成
 
 ```bash
 $ sudo sed -i "s/\/usr\/libexec\/libvirt_leaseshelper m,/\/usr\/libexec\/libvirt_leaseshelper mr,/g" /etc/apparmor.d/usr.sbin.dnsmasq
 ```
 
-Remember that those changes should be repeated on every AppArmor update.
+请记住这个更改应该在每次更新 AppArmor 是重新执行。
 
-### Create libvirt.conf
+### 建立 libvirt.conf
 
-On some Linux distribution is better to create a config file to make sure the default libvirt uri is the system one.
+在某些的Linux的发行版本上，最好创建一个配置文件，以确 libvirt uri 是系统默认的版本
 
-To do this create the folder `~/.config/libvirt/` and inside this folder create the `libvirt.conf` with `uri_default = "qemu:///system"`
+如果要执行此操作，请先创建文件夹  `~/.config/libvirt/` 并且在文件夹中创建 `libvirt.conf` 文件 具有 `uri_default = "qemu:///system"`
 
 ```bash
 $ mkdir -p ~/.config/libvirt
 $ echo "uri_default = \"qemu:///system\"" >> ~/.config/libvirt/libvirt.conf
 ```
 
-Now you will need to restart for all the changes to take place.
+现在，需要重启来生效刚才所有的修改
 
-### Download Windows .iso image and VirtIO Drivers for Windows
+### 下载 Windows.iso 系统镜像和 VirtIO 的Windows驱动 
 
-We will need either Windows 7, 8, or 10 Pro, Enterprise or Server to use RDP apps.  
+我们需要 Windows 7, 8, 或者 10 专业版, 企业版 或者 服务器版本 并且打开远程桌面RDP。
 VirtIO driver will improve the VM performance while having lowest overhead.
 
-> **BE SURE TO USE AN ADBLOCK FOR THE SITE BELOW!**  
-> Download links are generated directly from Microsoft CDN, so they are totally legit.
+> **请务必使用以下网站来下载系统镜像**  
+> 下载连接是由 Microsoft CDN 来直接生成的
 
-- Download Windows isos from: [HERE](https://tb.rg-adguard.net/public.php)
+- 下载 Windows iso 镜像 : [点击连接](https://tb.rg-adguard.net/public.php)
 
-- Download latest VirtIO driver iso images from: [HERE](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso)
+- 下载 VirtIO iso 驱动镜像: [点击连接](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso)
 
-> If you are using Windows 7 you don't need to download VirtIO iso as it is not supported.
+> 如果你使用的是Windows 7 则不需要下载VirtIO iso 因为他不支持。
 
-and save them in a convenient location.
+并且将他们保存在方便的路径
 
-### Creating a Virtual Machine
+### 创建虚拟机
 
-- Open virt-manager from your application menu
+>  由于我的PC是中文的，virt-manager 现实的是 ：虚拟系统管理器，所以下文软件界面中的英文我将保留
 
-- On virt-manager click on **Edit** -> **Preferences**, check **Enable XML editing** then click Close;  
-  
+- 打开 virt-manager/虚拟系统管理器 从应用程序菜单
+
+- 在 virt-manager/虚拟系统管理器 的菜单点击 **Edit/编辑**  -> **Preferences** ， 检查 **Enable XML editing/启用XML编辑 ** 然后关闭
+
   <img src="img/virt-manager-0.png" alt="virt-manager-0">
 
-- From virt-manager menu bar select **File** and then **New Virtual Machine**;
+- 从 virt-manager/虚拟系统管理器 菜单中点击 **File/文件** and then **New Virtual Machine/新建虚拟机**;
 
-- On the New VM window select **Local Install media** and click Next;  
-  
+- 在新建虚拟机窗口选择 **Local Install media/本地安装介质** 然后点击下一步;  
+
   <img src="img/virt-manager-1.png" alt="virt-manager-1">
 
-- Browse and select the Windows 10 iso you downloaded on install media then click Next again;
+- 选择Windows.iso镜像然后点击下一步
 
-- Set the CPU cores (2 recommended), Memory (4096 MB recommended) and Disk Space as per your preferences;  
   
+
+- 根据您的配置设置CPU核心 、内存、磁盘空间;  
+
   <img src="img/virt-manager-2.png" alt="virt-manager-2">
+
   <img src="img/virt-manager-3.png" alt="virt-manager-3">
 
-- Give a name to your vm such as `Win10` and check **Customize configuration before install** then click on Finish!;  
-  
+- 为虚拟机命名比如 `Win11` 并且在 **Customize configuration before install/安装前自定义配置** 然后点击完成！  
+
   <img src="img/virt-manager-4.png" alt="virt-manager-4">
 
-- In the CPU tab make sure **Copy host configuration** is checked;  
-  
+- 在CPU选项中确保 **Copy host configuration/复制主机CPU配置** ：  
+
   <img src="img/virt-manager-5.png" alt="virt-manager-5">
 
-- Goto XML tab of CPU and replace the section:
+- 跳转到CPU选项的XML选项卡找到并修改以下内容
 
 ```xml
 <clock offset="localtime">
@@ -110,7 +117,7 @@ and save them in a convenient location.
 </clock>
 ```
 
-with:
+修改:
 
 ```xml
 <clock offset="localtime">
@@ -119,52 +126,67 @@ with:
 </clock>
 ```
 
-- In the Memory tab set the **Current allocation** to **1024**, so the VM won't use 4GiB of memory directly but it will range from 1GiB to 4GiB;  
-  
+- 在虚拟机选项卡中 **Current allocation/当前分配** 设置为 **1024**，因此虚拟机不会直接使用全部内存，而是从当前分配到最大分配
+
   <img src="img/virt-manager-6.png" alt="virt-manager-6">
 
-- In the Boot Options tab you could check **Start the virtual machine on host bootup** if you would like the VM to boot automatically at your PC boot;
+- 在 “Boot Options/引导选项” 选项卡中，如果您希望在系统启动时启动虚拟机则需要勾选 **Start the virtual machine on host bootup/主机引导时启动虚拟机** 
 
-- In the SATA Disk 1 tab set the **Disk bus** to **VirtIO**;  
+- 在 “SATA Disk 1/SATA 磁盘 1“ 选项卡中 **Disk bus/硬盘总线** 选择 **VirtIO**;  
 
-> If you are using Windows 7 skip this step as VirtIO is not supported.
+> 如果您使用的是Windows 7，请跳过此步骤，因为不支持VirtIO。
 
 <img src="img/virt-manager-7.png" alt="virt-manager-7">
 
-- Move over to NIC section and set **Device model** to **virtio**;  
-  
+- 移到 NIC 选项卡将 **Device model/设备型号** 设置为 **virtio**;  
+
   <img src="img/virt-manager-8.png" alt="virt-manager-8">
 
-- Click on **Add hardware** at the bottom left, select **Storage** then choose **Select or Create custom storage**; click on **Manage**, browse and select the downloaded virtio-win driver iso. Finally set the device type to **CDROM** and click on Finish;  
-  
+- 点击左下角的 **Add hardware/添加硬件** 选择 **Storage/存储** 然后选择 **Select or Create custom storage/选择或创建自定义存储**； 点击 **Manage/管理**，浏览并设置下载的`virtio-win` 驱动ISO。然后将设备设置为 **CDROM** 点击完成;  
+
   <img src="img/virt-manager-9.png" alt="virt-manager-9">
 
-- Click **Begin Installation** on top left;
+- 点击左上角 **Begin Installation/开始安装** ；
 
-- Follow the installation instructions for Windows 10 and when choosing a Custom installation you will get no drives to install Windows 10 on. To make the VirtIO drive works you will have to click on **Load Driver**, then choose **OK** and finally select the driver for Windows 10;
+- 按照Windows的安装说明进行操作，当选择自定义安装时，将无法安装 Windows 。要使 VirtIO 启动正常工作，必须单击 **Load Driver/加载驱动程序**，然后点击 **OK/确定** 最后选择Windows的驱动程序
 
-> If no drivers are loaded or shown, let Windows search for them inside the `amd64` folder of the VirtIO disk.
+  <img src="img/virt-manager-11.png" alt="virt-manager-11">
+
+> 如果没有加载或显示驱动程序，请让Windows在VirtIO磁盘的“amd64/win11”文件夹中搜索它们。当您的操作系统是win10或其他版本就选择win10或其他文件夹
 
 <img src="img/virt-manager-10.png" alt="virt-manager-10">
 
-- After that your drive will show and you can continue like a normal Windows 10 installation;
-- After some time you will get to "Let's connect to internet page", click on **I don't have internet** at bottom left and continue with limited setup;
-- Set your username and password. The Password is not allowed to be blank;
-- After you get to Windows 10 desktop open This PC and browse to virtio-win CD drive and install **virtio-win-gt-x64.exe**;
-- It's also suggested to install the [spice guest tools](https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools-latest.exe) to also enable copy-paste between host and guest;
-- Shut down the VM and from the menubar select **View** and then **Details**;
-- Go to Display Spice section and set **Listen Type** to **None**; also check the OpenGL option and click Apply;
-- Go to Video QXL section and set **Model** to **VirtIO** and check the 3D acceleration option;
 
-> If you get a black screen after those changes, revert those changes. This could happen with nvidia graphics card;
 
-- Start the VM by clicking the play button on the top left (you may need to click the Monitor icon to show the VM screen ). Login to desktop;
-- Open up edge and browse to this page and continue the instructions for installing cassowary.
+- 之后，你的驱动器将显示，你可以像正常的Windows 安装一样继续；
+
+- 一段时间后，您将进入“让我们连接到互联网页面”，单击左下角的**我没有互联网**，继续进行有限的设置；
+
+  >如果win11无法选择 **“”我没有互联网“** ，则可以按快捷键 `shitf + F10` 打开命令提示符 输入`start explorer.exe` 选择加载的 `VirtIO` 驱动光驱进行驱动安装
+
+- 设置您的用户名和密码。密码不允许为空；
+
+  > 小技巧：win11安装时邮箱输入`1@a.cn` 可以跳过微软帐号使用本地用户登陆。
+
+- 进入Windows 10桌面后，打开这台电脑，浏览到virtio-win CD驱动器，安装**virtio-win-gt-x64.exe**；
+
+- 建议安装 [spice guest tools](https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools-latest.exe) 可以在主机和客户机之间进行复制粘贴；
+
+- 关闭虚拟机，从菜单栏中选择**查看**，然后选择**详细信息**；
+
+- 转到 “Display Spice /显示协议“  **Listen Type/监听** 选择 **None**；并且选中 OpenGL 保存
+
+- 点击 “Video QXL/显示卡QXL“ 把 **Model/型号** 设置为 **VirtIO** 并且勾选**“3D加速”**
+
+> 如果在这些更改后出现黑屏，请恢复这些更改。nvidia显卡可能会出现这种情况；
+
+- 单击左上角的播放按钮启动虚拟机（您可能需要单击监视器图标以显示虚拟机屏幕）。登录到桌面；
+- 打开浏览器并浏览此页面，然后继续安装 `cassowary` 
 
 ---
 
-Note: For better 3D performance you can use VMware or other virtualization platforms, ( The IP autodetection and VM auto suspend only works for libvirt based platforms as of now.
+注意：为了获得更好的3D性能，您可以使用VMware或其他虚拟化平台，（IP自动检测和VM自动挂起目前仅适用于基于libvirt的平台。
 
 ---
 
-**Next guide** -> [Installing cassowary on Windows guest and Linux host](2-cassowary-install.md)
+**下一步** -> [在Windows虚拟机和Linux主机中安装cassowary](2-cassowary-install.md)

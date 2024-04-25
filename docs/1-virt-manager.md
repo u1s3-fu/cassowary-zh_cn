@@ -160,9 +160,9 @@ VirtIO driver will improve the VM performance while having lowest overhead.
 
 - 之后，你的驱动器将显示，你可以像正常的Windows 安装一样继续；
 
-- 一段时间后，您将进入“让我们连接到互联网页面”，单击左下角的**我没有互联网**，继续进行有限的设置；
+- 一段时间后，您将进入“让我们连接到互联网页面”，单击左下角的 **我没有互联网**，继续进行有限的设置；
 
-  >如果win11无法选择 **“”我没有互联网“** ，则可以按快捷键 `shitf + F10` 打开命令提示符 输入`start explorer.exe` 选择加载的 `VirtIO` 驱动光驱进行驱动安装
+  >如果win11无法选择 **“我没有互联网”** ，则可以按快捷键 `shitf + F10` 打开命令提示符 输入`start explorer.exe` 选择加载的 `VirtIO` 驱动光驱进行驱动安装
 
 - 设置您的用户名和密码。密码不允许为空；
 

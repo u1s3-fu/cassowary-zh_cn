@@ -15,6 +15,7 @@
 如果项目有对您提供的了帮助可以点击 ⭐ 
 
 **加入Discord的讨论: [点击连接加入 Discord](https://discord.gg/hz4mAwSujH)**
+**本项目根据原项目进行简单汉化** [点击跳转至原项目](https://github.com/casualsnek/cassowary/) 
 
 ## Cassowary 支持:
 

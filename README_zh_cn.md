@@ -10,7 +10,7 @@
 
 使用Cassowary，您可以在Linux上运行Windows虚拟机并使用Windows应用程序，就像是基于FreeRDP和远程应用程序技术构建的本地应用程序一样。
 
-**如果您喜欢视频而不是文档可以参考连接  [点击跳转youtube.](https://www.youtube.com/watch?v=ftq-c_VgmK0)**
+**如果您喜欢视频而不是文档可以参考连接  [点击跳转 YouTube.](https://www.youtube.com/watch?v=ftq-c_VgmK0)**
 
 如果项目有对您提供的了帮助可以点击 ⭐ 
 
